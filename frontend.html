@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body class="bg-blue-500">
+		<div class="mx-20 mx-auto my-8 max-w-sm flex-col rounded-3xl border-4 border-t-8 border-gray-900 bg-white px-4 py-6 text-black shadow-2xl">
+			<h1 class="text-sm font-bold underline text-center mb-4" id="welcome"></h1>
+			<div class="text-center">
+				<img class="rounded-full" alt="profile pic" src="https://i.insider.com/61a7a6965d47cc0018e8ce17?width=600&format=jpeg&auto=webp" />
+
+				<div class="pt-2 text-lg font-medium" id="rawText">-</div>
+				<div class="text-sm font-extrabold text-gray-900" id="owner">ID :</div>
+				<div id="num">ETH=</div>
+			</div>
+
+			<div>
+				<input
+					type="text"
+                    id="textRaw"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-4 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+					placeholder="Set Your Name :"
+					required
+				/>
+			</div>
+
+			<div class="my-2 flex h-16 items-center justify-between rounded-lg border-2 border-b-4 border-l-4 border-black px-4 shadow-xl hover:bg-blue-300" onclick="setText()">
+				<div class="flex items-center">
+					<div class="ml-2">
+						<div class="text-xs font-semibold cursor-pointer">Set Name</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="my-2 flex h-16 items-center justify-between rounded-lg border-2 border-b-4 border-l-4 border-black px-4 shadow-xl hover:bg-blue-300" onclick="inc()">
+				<div class="flex items-center">
+					<div class="ml-2">
+						<div class="text-xs font-semibold cursor-pointer">Transfer ETH</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="my-2 flex h-16 items-center justify-between rounded-lg border-2 border-b-4 border-l-4 border-black px-4 shadow-xl hover:bg-blue-300" onclick="loadData()">
+				<div class="flex items-center">
+					<div class="ml-2">
+						<div class="text-xs font-semibold cursor-pointer">Load Data</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="my-2 flex h-16 items-center justify-between rounded-lg border-2 border-b-4 border-l-4 border-black px-4 shadow-xl bg-yellow-500 hover:bg-yellow-400" id="wallet" onclick="connect()">
+				<div class="flex items-center">
+					<div class="ml-2">
+						<div class="text-xs font-semibold cursor-pointer">Connect to Wallet</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+	<script src="abi.js"></script>
+	<script>
+		let provider;
+
+		let account;
+		let sampleContract;
+
+		async function loadData() {
+			document.getElementById('owner').innerText = await sampleContract.getOwner();
+			document.getElementById('rawText').innerText = await sampleContract.textRaw();
+			document.getElementById('num').innerText += await sampleContract.num();
+		}
+
+		async function setText() {
+			const textValue = document.getElementById('textRaw').value;
+			const sample = await sampleContract.connect(await provider.getSigner());
+			await sample.setText(textValue);
+			await loadData();
+		}
+
+		async function inc() {
+			const sample = await sampleContract.connect(await provider.getSigner());
+			await sample.inc();
+			await loadData();
+		}
+
+		async function connect() {
+			await ethereum.request({ method: 'eth_requestAccounts' });
+			provider = new ethers.providers.Web3Provider(window.ethereum);
+			account = await provider.getSigner().getAddress();
+			document.getElementById('welcome').innerText += account;
+			document.getElementById('wallet').classList.add('invisible');
+			sampleContract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', abi, provider);
+			await loadData();
+		}
+
+		window.addEventListener('load', async () => {});
+	</script>
+</html>
